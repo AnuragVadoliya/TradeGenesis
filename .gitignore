@@ -1,0 +1,92 @@
+# ==========================================
+# TradeGenesis - Root .gitignore
+# Place this file beside docker-compose.yml
+# ==========================================
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.sample
+
+# Node.js dependencies
+node_modules/
+**/node_modules/
+
+# Frontend build outputs
+dist/
+**/dist/
+build/
+**/build/
+.vite/
+**/.vite/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+**/venv/
+**/.venv/
+**/env/
+.python-version
+
+# Python cache and compiled files
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime files
+*.log
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.pid
+*.seed
+
+# Local databases, exports, and temporary data
+*.sqlite
+*.sqlite3
+*.db
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Market data / generated artifacts (review before committing)
+scrip_master.json
+**/scrip_master.json
+*.parquet
+*.feather
+
+# Docker local overrides and secrets
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+# Coverage and test reports
+coverage/
+**/coverage/
+.nyc_output/
+
+# IDE and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Git
+.git

@@ -1,0 +1,271 @@
+import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, Bot, FlaskConical, Shield, ArrowRight, ChevronRight, Zap, BarChart3, Code2 } from 'lucide-react';
+
+const features = [
+  {
+    icon: Bot,
+    title: 'AI Strategy Generator',
+    desc: 'Describe your trading idea in plain English. Our AI converts it into production-ready Python code instantly.',
+    color: 'from-orange-500/20 to-amber-500/10',
+    border: 'border-orange-500/20',
+  },
+  {
+    icon: FlaskConical,
+    title: 'Backtest Engine',
+    desc: 'Test strategies on years of NSE/BSE historical data. Get detailed P&L, win rate, and equity curve analysis.',
+    color: 'from-blue-500/20 to-indigo-500/10',
+    border: 'border-blue-500/20',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Paper Trading',
+    desc: 'Execute your strategies with ₹10L virtual capital. Track portfolio, P&L, and trade history in real-time.',
+    color: 'from-green-500/20 to-emerald-500/10',
+    border: 'border-green-500/20',
+  },
+  {
+    icon: Code2,
+    title: 'Strategy Builder',
+    desc: 'Save, edit, and manage your strategy library. Each strategy stores code, explanation, and backtest results.',
+    color: 'from-purple-500/20 to-violet-500/10',
+    border: 'border-purple-500/20',
+  },
+];
+
+const stats = [
+  { value: '50+', label: 'Technical Indicators' },
+  { value: '₹10L', label: 'Virtual Capital' },
+  { value: '5Y+', label: 'Historical Data' },
+  { value: '100%', label: 'AI-Powered' },
+];
+
+// Animated chart line (SVG)
+const AnimatedChart = () => (
+  <svg viewBox="0 0 800 300" className="w-full h-full" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#F97316" stopOpacity="0.4" />
+        <stop offset="100%" stopColor="#F97316" stopOpacity="0" />
+      </linearGradient>
+      <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#F97316" />
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    {/* Grid lines */}
+    {[60, 120, 180, 240].map(y => (
+      <line key={y} x1="0" y1={y} x2="800" y2={y} stroke="#2A2A2A" strokeWidth="1" />
+    ))}
+
+    {/* Area fill */}
+    <path
+      d="M0,240 L0,200 C50,190 80,170 120,150 C160,130 180,110 220,90 C260,70 280,100 320,80 C360,60 380,40 420,50 C460,60 480,30 520,20 C560,10 580,40 620,30 C660,20 700,50 740,40 C760,35 780,30 800,25 L800,240 Z"
+      fill="url(#chartGrad)"
+    />
+
+    {/* Main line */}
+    <path
+      d="M0,200 C50,190 80,170 120,150 C160,130 180,110 220,90 C260,70 280,100 320,80 C360,60 380,40 420,50 C460,60 480,30 520,20 C560,10 580,40 620,30 C660,20 700,50 740,40 C760,35 780,30 800,25"
+      fill="none"
+      stroke="url(#lineGrad)"
+      strokeWidth="2.5"
+      filter="url(#glow)"
+    />
+
+    {/* Data points */}
+    {[[120,150],[220,90],[320,80],[420,50],[520,20],[620,30],[740,40]].map(([x,y],i) => (
+      <circle key={i} cx={x} cy={y} r="4" fill="#F97316" filter="url(#glow)" />
+    ))}
+
+    {/* Bar chart on right */}
+    {[
+      [650,160,40],[680,100,40],[710,130,40],[740,70,40],[770,90,40]
+    ].map(([x,y,w],i) => (
+      <rect key={i} x={x} y={y} width="18" height={240-y}
+        fill={`rgba(249,115,22,${0.3 + i*0.1})`}
+        rx="2"
+      />
+    ))}
+  </svg>
+);
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-brand-dark font-body overflow-x-hidden">
+      {/* Background glow */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-orange-500/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-orange-700/5 rounded-full blur-[80px]" />
+      </div>
+
+      {/* Navbar */}
+      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-brand-border/50 backdrop-blur-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-brand-orange rounded-lg flex items-center justify-center animate-glow">
+            <TrendingUp size={16} className="text-white" />
+          </div>
+          <span className="font-display font-bold text-white text-xl tracking-tight">
+            Trade<span className="text-brand-orange">Genesis</span>
+          </span>
+        </div>
+
+        <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
+          {['Features', 'Strategies', 'Backtest', 'Pricing'].map(item => (
+            <a key={item} href="#" className="hover:text-white transition-colors">{item}</a>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link to="/login" className="btn-ghost text-sm">Sign in</Link>
+          <Link to="/register" className="btn-primary text-sm">
+            Get Started <ArrowRight size={14} className="inline ml-1" />
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative z-10 px-8 pt-20 pb-16 text-center max-w-6xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium mb-8 animate-slide-up">
+          <Zap size={13} className="fill-current" />
+          AI-Powered Trading Platform for NSE & BSE
+        </div>
+
+        <h1 className="font-display font-extrabold text-5xl md:text-7xl text-white leading-[1.05] mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          Digital<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 glow-text">
+            Trading Agency
+          </span>
+        </h1>
+
+        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          Create algorithmic trading strategies using plain English. Our AI converts your ideas
+          into Python, backtests them on real NSE/BSE data, and executes paper trades.
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Link to="/register" className="btn-primary text-base px-8 py-3.5">
+            Start Trading Free
+            <ArrowRight size={16} className="inline ml-2" />
+          </Link>
+          <Link to="/login" className="btn-secondary text-base px-8 py-3.5">
+            View Demo
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="flex flex-wrap justify-center gap-8 mt-14 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          {stats.map(({ value, label }) => (
+            <div key={label} className="text-center">
+              <div className="font-display font-bold text-2xl text-brand-orange">{value}</div>
+              <div className="text-gray-500 text-sm mt-1">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Chart Hero Visual */}
+      <section className="relative z-10 px-8 pb-20 max-w-6xl mx-auto">
+        <div className="relative rounded-2xl overflow-hidden border border-brand-border bg-brand-surface glow-orange">
+          {/* Fake browser bar */}
+          <div className="flex items-center gap-2 px-5 py-3.5 border-b border-brand-border bg-brand-card">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500/60" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+              <div className="w-3 h-3 rounded-full bg-green-500/60" />
+            </div>
+            <div className="flex-1 text-center">
+              <span className="text-gray-500 text-xs font-mono">tradegenesis.app/dashboard</span>
+            </div>
+          </div>
+
+          {/* Chart area */}
+          <div className="relative h-72 p-6">
+            <div className="absolute inset-0 flex items-end pb-6 px-6">
+              <AnimatedChart />
+            </div>
+            {/* Overlay labels */}
+            <div className="relative z-10 flex justify-between text-xs text-gray-500 font-mono">
+              <span>RELIANCE.NS</span>
+              <span className="text-green-400 font-medium">+18.4% YTD ↑</span>
+            </div>
+          </div>
+
+          {/* Bottom stats bar */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-brand-border">
+            {[
+              { label: 'Total Profit', value: '₹1,84,320', color: 'text-green-400' },
+              { label: 'Win Rate', value: '68.5%', color: 'text-blue-400' },
+              { label: 'Total Trades', value: '142', color: 'text-white' },
+              { label: 'Max Drawdown', value: '8.2%', color: 'text-red-400' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="bg-brand-card px-5 py-4">
+                <div className="text-gray-500 text-xs mb-1">{label}</div>
+                <div className={`font-display font-bold text-lg ${color}`}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="relative z-10 px-8 py-20 max-w-6xl mx-auto">
+        <div className="text-center mb-14">
+          <p className="text-brand-orange text-sm font-medium uppercase tracking-widest mb-3">Everything You Need</p>
+          <h2 className="font-display font-bold text-4xl text-white">
+            Smart Trading,<br />
+            <span className="text-gray-400">Simplified</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-5">
+          {features.map(({ icon: Icon, title, desc, color, border }) => (
+            <div
+              key={title}
+              className={`card p-6 border ${border} bg-gradient-to-br ${color} hover:scale-[1.02] transition-all duration-300 group`}
+            >
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} border ${border} flex items-center justify-center mb-4`}>
+                <Icon size={18} className="text-white" />
+              </div>
+              <h3 className="font-display font-semibold text-white text-lg mb-2">{title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+              <div className="flex items-center gap-1 text-gray-600 group-hover:text-gray-400 text-xs mt-4 transition-colors">
+                Learn more <ChevronRight size={12} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 px-8 py-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="card p-12 border-orange-500/20 bg-gradient-to-br from-orange-500/10 to-transparent glow-orange">
+            <h2 className="font-display font-bold text-4xl text-white mb-4">
+              Ready to generate<br />your first strategy?
+            </h2>
+            <p className="text-gray-400 mb-8">Join traders using AI to build smarter algorithms</p>
+            <Link to="/register" className="btn-primary text-base px-10 py-4">
+              Create Free Account
+              <ArrowRight size={16} className="inline ml-2" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-brand-border px-8 py-8 text-center text-gray-600 text-sm">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <TrendingUp size={14} className="text-brand-orange" />
+          <span className="font-display font-semibold text-gray-400">TradeGenesis</span>
+        </div>
+        <p>© 2024 TradeGenesis. For educational purposes only. Not financial advice.</p>
+      </footer>
+    </div>
+  );
+}
