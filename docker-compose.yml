@@ -15,7 +15,8 @@ services:
       - "5000:5000"
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/tradegenesis
-      - JWT_SECRET=tradegenesis_super_secret_jwt_2024
+      # - JWT_SECRET=tradegenesis_super_secret_jwt_2024
+      - JWT_SECRET=${JWT_SECRET}
       - PYTHON_ENGINE_URL=http://python-engine:8000
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     depends_on:

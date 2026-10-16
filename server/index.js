@@ -4,7 +4,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const ENV_PATH = require('path').join(__dirname, '.env');
+require('dotenv').config({ path: ENV_PATH });
+
+console.log(process.env.GROQ_API_KEY
+  ? `🔑 GROQ_API_KEY loaded from ${ENV_PATH} (${process.env.GROQ_API_KEY.slice(0, 8)}…)`
+  : `🔑 GROQ_API_KEY is MISSING — check ${ENV_PATH}`);
 
 const app = express();
 
