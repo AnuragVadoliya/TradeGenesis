@@ -15,8 +15,17 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
+// app.use(cors({
+//   origin: process.env.NODE_ENV === 'production' ? 'https://tradegenesis.app' : ['http://localhost:3000', 'http://localhost:5173'],
+//   credentials: true
+// }));
+
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.CORS_ORIGIN].filter(Boolean)
+  : ['http://localhost:3000', 'http://localhost:5173'];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://tradegenesis.app' : ['http://localhost:3000', 'http://localhost:5173'],
+  origin: allowedOrigins,
   credentials: true
 }));
 
