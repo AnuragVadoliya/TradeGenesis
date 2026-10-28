@@ -1,3 +1,6 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,10 +18,6 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-// app.use(cors({
-//   origin: process.env.NODE_ENV === 'production' ? 'https://tradegenesis.app' : ['http://localhost:3000', 'http://localhost:5173'],
-//   credentials: true
-// }));
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [process.env.CORS_ORIGIN].filter(Boolean)

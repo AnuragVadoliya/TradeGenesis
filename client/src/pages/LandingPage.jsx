@@ -1,6 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Bot, FlaskConical, Shield, ArrowRight, ChevronRight, Zap, BarChart3, Code2 } from 'lucide-react';
+import {
+  TrendingUp, Bot, FlaskConical, Shield, ArrowRight,
+  ChevronRight, Zap, BarChart3, Code2, Check, Sparkles, Menu, X
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const features = [
   {
@@ -9,6 +13,7 @@ const features = [
     desc: 'Describe your trading idea in plain English. Our AI converts it into production-ready Python code instantly.',
     color: 'from-orange-500/20 to-amber-500/10',
     border: 'border-orange-500/20',
+    target: 'strategies',
   },
   {
     icon: FlaskConical,
@@ -16,6 +21,7 @@ const features = [
     desc: 'Test strategies on years of NSE/BSE historical data. Get detailed P&L, win rate, and equity curve analysis.',
     color: 'from-blue-500/20 to-indigo-500/10',
     border: 'border-blue-500/20',
+    target: 'backtest',
   },
   {
     icon: TrendingUp,
@@ -23,6 +29,7 @@ const features = [
     desc: 'Execute your strategies with ₹10L virtual capital. Track portfolio, P&L, and trade history in real-time.',
     color: 'from-green-500/20 to-emerald-500/10',
     border: 'border-green-500/20',
+    target: 'backtest',
   },
   {
     icon: Code2,
@@ -30,6 +37,7 @@ const features = [
     desc: 'Save, edit, and manage your strategy library. Each strategy stores code, explanation, and backtest results.',
     color: 'from-purple-500/20 to-violet-500/10',
     border: 'border-purple-500/20',
+    target: 'strategies',
   },
 ];
 
@@ -38,6 +46,88 @@ const stats = [
   { value: '₹10L', label: 'Virtual Capital' },
   { value: '5Y+', label: 'Historical Data' },
   { value: '100%', label: 'AI-Powered' },
+];
+
+const sampleStrategies = [
+  {
+    name: 'RSI Mean Reversion',
+    symbol: 'RELIANCE.NS',
+    type: 'Momentum / Counter-Trend',
+    winRate: '71.4%',
+    roi: '+28.5%',
+    drawdown: '5.2%',
+    desc: 'Identifies oversold conditions when 14-period RSI drops below 30 and sells when RSI exceeds 70.',
+    tags: ['RSI', 'NIFTY 50', 'Daily'],
+  },
+  {
+    name: 'EMA Golden Cross (50/200)',
+    symbol: 'TCS.NS',
+    type: 'Trend Following',
+    winRate: '65.2%',
+    roi: '+42.1%',
+    drawdown: '7.8%',
+    desc: 'Captures sustained market trends by entering long positions when 50 EMA crosses above 200 EMA.',
+    tags: ['EMA', 'IT Sector', 'Swing'],
+  },
+  {
+    name: 'Bollinger Band Squeeze',
+    symbol: 'HDFCBANK.NS',
+    type: 'Volatility Breakout',
+    winRate: '68.8%',
+    roi: '+34.6%',
+    drawdown: '6.4%',
+    desc: 'Monitors low volatility compression zones and buys on aggressive volume breakouts above upper bands.',
+    tags: ['Bollinger', 'Banking', 'Intraday/Swing'],
+  },
+];
+
+const pricingPlans = [
+  {
+    name: 'Starter',
+    price: '₹0',
+    period: 'Forever free',
+    desc: 'Perfect for beginners exploring algorithmic trading and backtesting.',
+    features: [
+      '₹10,00,000 Virtual Paper Capital',
+      '5 AI Strategy Generations / Day',
+      '1 Year Historical Data Backtesting',
+      'NSE & BSE Standard Indicators',
+      'Real-time P&L & Trade Journal',
+    ],
+    highlight: false,
+    cta: 'Start Trading Free',
+  },
+  {
+    name: 'Pro Trader',
+    price: '₹999',
+    period: 'per month',
+    desc: 'For active traders wanting unrestricted AI generation & multi-year historical depth.',
+    features: [
+      'Everything in Starter',
+      'Unlimited AI Strategy Generations',
+      '5+ Years Historical Data Backtests',
+      'Custom Python Sandbox & AST Validation',
+      'Sharpe, Sortino & Max Drawdown Analysis',
+      'Priority Execution & Cloud Storage',
+    ],
+    highlight: true,
+    cta: 'Start Pro Trial',
+  },
+  {
+    name: 'Quant Elite',
+    price: '₹2,499',
+    period: 'per month',
+    desc: 'Advanced tools and future broker integration for serious quantitative investors.',
+    features: [
+      'Everything in Pro Trader',
+      'Multi-asset Portfolio Optimization',
+      'Dedicated Strategy Backtest Worker',
+      'Live Webhook & Broker API Connectors (Coming Soon)',
+      '1-on-1 Algorithmic Trading Support',
+    ],
+    highlight: false,
+    cta: 'Get Quant Elite',
+  },
 ];
 
 // Animated chart line (SVG)
@@ -96,6 +186,26 @@ const AnimatedChart = () => (
 );
 
 export default function LandingPage() {
+  const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const scrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.history.pushState(null, '', `#${sectionId}`);
+    }
+  };
+
+  const navLinks = [
+    { name: 'Features', id: 'features' },
+    { name: 'Strategies', id: 'strategies' },
+    { name: 'Backtest', id: 'backtest' },
+    { name: 'Pricing', id: 'pricing' },
+  ];
+
   return (
     <div className="min-h-screen bg-brand-dark font-body overflow-x-hidden">
       {/* Background glow */}
@@ -105,32 +215,94 @@ export default function LandingPage() {
       </div>
 
       {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-brand-border/50 backdrop-blur-sm">
-        <div className="flex items-center gap-2.5">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-8 py-4 border-b border-brand-border/80 bg-brand-dark/95 backdrop-blur-md shadow-lg shadow-black/20">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.history.pushState(null, '', ' ');
+          }}
+          className="flex items-center gap-2.5 group cursor-pointer"
+        >
           <div className="w-8 h-8 bg-brand-orange rounded-lg flex items-center justify-center animate-glow">
             <TrendingUp size={16} className="text-white" />
           </div>
           <span className="font-display font-bold text-white text-xl tracking-tight">
             Trade<span className="text-brand-orange">Genesis</span>
           </span>
-        </div>
+        </a>
 
+        {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-          {['Features', 'Strategies', 'Backtest', 'Pricing'].map(item => (
-            <a key={item} href="#" className="hover:text-white transition-colors">{item}</a>
+          {navLinks.map(({ name, id }) => (
+            <a
+              key={name}
+              href={`#${id}`}
+              onClick={(e) => scrollToSection(e, id)}
+              className="hover:text-brand-orange hover:scale-105 transition-all duration-150 cursor-pointer"
+            >
+              {name}
+            </a>
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link to="/login" className="btn-ghost text-sm">Sign in</Link>
-          <Link to="/register" className="btn-primary text-sm">
-            Get Started <ArrowRight size={14} className="inline ml-1" />
-          </Link>
+        {/* Auth CTA buttons */}
+        <div className="hidden sm:flex items-center gap-3">
+          {user ? (
+            <Link to="/dashboard" className="btn-primary text-sm flex items-center gap-1.5">
+              Dashboard <ArrowRight size={14} />
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="btn-ghost text-sm">Sign in</Link>
+              <Link to="/register" className="btn-primary text-sm flex items-center gap-1.5">
+                Get Started <ArrowRight size={14} />
+              </Link>
+            </>
+          )}
         </div>
+
+        {/* Mobile Hamburger Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-gray-400 hover:text-white rounded-lg hover:bg-brand-surface"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </nav>
 
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed top-[65px] left-0 right-0 z-40 bg-brand-surface/95 border-b border-brand-border backdrop-blur-lg px-6 py-5 flex flex-col gap-4 animate-slide-up shadow-xl">
+          {navLinks.map(({ name, id }) => (
+            <a
+              key={name}
+              href={`#${id}`}
+              onClick={(e) => scrollToSection(e, id)}
+              className="text-gray-300 hover:text-brand-orange text-base font-medium py-1"
+            >
+              {name}
+            </a>
+          ))}
+          <div className="pt-3 border-t border-brand-border flex items-center gap-3">
+            {user ? (
+              <Link to="/dashboard" className="btn-primary text-sm w-full text-center">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="btn-ghost text-sm flex-1 text-center">Sign in</Link>
+                <Link to="/register" className="btn-primary text-sm flex-1 text-center">Get Started</Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
-      <section className="relative z-10 px-8 pt-20 pb-16 text-center max-w-6xl mx-auto">
+      <section className="relative z-10 px-8 pt-32 pb-16 text-center max-w-6xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium mb-8 animate-slide-up">
           <Zap size={13} className="fill-current" />
           AI-Powered Trading Platform for NSE & BSE
@@ -149,13 +321,17 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <Link to="/register" className="btn-primary text-base px-8 py-3.5">
+          <Link to={user ? "/dashboard" : "/register"} className="btn-primary text-base px-8 py-3.5">
             Start Trading Free
             <ArrowRight size={16} className="inline ml-2" />
           </Link>
-          <Link to="/login" className="btn-secondary text-base px-8 py-3.5">
+          <a
+            href="#backtest"
+            onClick={(e) => scrollToSection(e, 'backtest')}
+            className="btn-secondary text-base px-8 py-3.5 cursor-pointer"
+          >
             View Demo
-          </Link>
+          </a>
         </div>
 
         {/* Stats */}
@@ -169,10 +345,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Chart Hero Visual */}
-      <section className="relative z-10 px-8 pb-20 max-w-6xl mx-auto">
+      {/* Backtest & Simulation Hero Visual (Section #backtest) */}
+      <section id="backtest" className="relative z-10 px-8 pb-20 max-w-6xl mx-auto scroll-mt-24">
+        <div className="text-center mb-8">
+          <p className="text-brand-orange text-sm font-medium uppercase tracking-widest mb-2">Live Strategy Simulation</p>
+          <h2 className="font-display font-bold text-3xl md:text-4xl text-white">Backtest Engine Preview</h2>
+        </div>
+
         <div className="relative rounded-2xl overflow-hidden border border-brand-border bg-brand-surface glow-orange">
-          {/* Fake browser bar */}
+          {/* Browser bar */}
           <div className="flex items-center gap-2 px-5 py-3.5 border-b border-brand-border bg-brand-card">
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
@@ -180,7 +361,7 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
             </div>
             <div className="flex-1 text-center">
-              <span className="text-gray-500 text-xs font-mono">tradegenesis.app/dashboard</span>
+              <span className="text-gray-500 text-xs font-mono">tradegenesis.app/backtest</span>
             </div>
           </div>
 
@@ -191,8 +372,8 @@ export default function LandingPage() {
             </div>
             {/* Overlay labels */}
             <div className="relative z-10 flex justify-between text-xs text-gray-500 font-mono">
-              <span>RELIANCE.NS</span>
-              <span className="text-green-400 font-medium">+18.4% YTD ↑</span>
+              <span className="text-white font-semibold">RELIANCE.NS (1Y Backtest)</span>
+              <span className="text-green-400 font-medium">+18.4% Net Return ↑</span>
             </div>
           </div>
 
@@ -213,8 +394,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="relative z-10 px-8 py-20 max-w-6xl mx-auto">
+      {/* Features Grid (Section #features) */}
+      <section id="features" className="relative z-10 px-8 py-20 max-w-6xl mx-auto scroll-mt-24">
         <div className="text-center mb-14">
           <p className="text-brand-orange text-sm font-medium uppercase tracking-widest mb-3">Everything You Need</p>
           <h2 className="font-display font-bold text-4xl text-white">
@@ -224,7 +405,7 @@ export default function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-5">
-          {features.map(({ icon: Icon, title, desc, color, border }) => (
+          {features.map(({ icon: Icon, title, desc, color, border, target }) => (
             <div
               key={title}
               className={`card p-6 border ${border} bg-gradient-to-br ${color} hover:scale-[1.02] transition-all duration-300 group`}
@@ -234,9 +415,138 @@ export default function LandingPage() {
               </div>
               <h3 className="font-display font-semibold text-white text-lg mb-2">{title}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
-              <div className="flex items-center gap-1 text-gray-600 group-hover:text-gray-400 text-xs mt-4 transition-colors">
+              <a
+                href={`#${target}`}
+                onClick={(e) => scrollToSection(e, target)}
+                className="inline-flex items-center gap-1 text-gray-500 group-hover:text-brand-orange text-xs mt-4 transition-colors cursor-pointer"
+              >
                 Learn more <ChevronRight size={12} />
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Strategies Showcase (Section #strategies) */}
+      <section id="strategies" className="relative z-10 px-8 py-20 max-w-6xl mx-auto scroll-mt-24">
+        <div className="text-center mb-14">
+          <p className="text-brand-orange text-sm font-medium uppercase tracking-widest mb-3">Algorithmic Strategies</p>
+          <h2 className="font-display font-bold text-4xl text-white">
+            Ready-to-Use &amp; AI-Crafted<br />
+            <span className="text-gray-400">Quantitative Models</span>
+          </h2>
+          <p className="text-gray-400 text-base max-w-2xl mx-auto mt-4">
+            Test pre-configured rule sets or prompt our AI to synthesize your custom mathematical triggers.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {sampleStrategies.map((strat) => (
+            <div
+              key={strat.name}
+              className="card p-6 border-brand-border bg-brand-surface/70 hover:border-brand-orange/50 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="badge badge-orange font-mono text-xs">{strat.symbol}</span>
+                  <span className="text-xs text-gray-400">{strat.type}</span>
+                </div>
+
+                <h3 className="font-display font-semibold text-white text-lg mb-2">{strat.name}</h3>
+                <p className="text-gray-400 text-xs leading-relaxed mb-5">{strat.desc}</p>
+
+                <div className="grid grid-cols-3 gap-2 py-3 px-3 bg-brand-card rounded-lg border border-brand-border mb-4 text-center">
+                  <div>
+                    <div className="text-[11px] text-gray-500">Win Rate</div>
+                    <div className="font-display font-bold text-sm text-green-400">{strat.winRate}</div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-gray-500">Sim. ROI</div>
+                    <div className="font-display font-bold text-sm text-brand-orange">{strat.roi}</div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-gray-500">Drawdown</div>
+                    <div className="font-display font-bold text-sm text-gray-300">{strat.drawdown}</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-6">
+                  {strat.tags.map(t => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-brand-border text-gray-400 font-mono">
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
+
+              <Link
+                to={user ? "/strategy-builder" : "/register"}
+                className="w-full btn-secondary text-xs py-2.5 flex items-center justify-center gap-1.5 group-hover:bg-brand-orange transition-colors"
+              >
+                Build or Backtest <ArrowRight size={13} />
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing Section (Section #pricing) */}
+      <section id="pricing" className="relative z-10 px-8 py-20 max-w-6xl mx-auto scroll-mt-24">
+        <div className="text-center mb-14">
+          <p className="text-brand-orange text-sm font-medium uppercase tracking-widest mb-3">Simple &amp; Transparent</p>
+          <h2 className="font-display font-bold text-4xl text-white">
+            Choose Your Plan
+          </h2>
+          <p className="text-gray-400 text-base max-w-xl mx-auto mt-3">
+            Start completely free with virtual money, then upgrade whenever you're ready for advanced quantitative firepower.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          {pricingPlans.map((plan) => (
+            <div
+              key={plan.name}
+              className={`card p-8 flex flex-col justify-between relative transition-all duration-300 ${
+                plan.highlight
+                  ? 'border-brand-orange bg-gradient-to-b from-orange-500/10 via-brand-surface to-brand-card shadow-lg shadow-orange-500/10 scale-105 z-10'
+                  : 'border-brand-border bg-brand-surface/60 hover:border-gray-600'
+              }`}
+            >
+              {plan.highlight && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-orange text-white text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 shadow">
+                  <Sparkles size={12} /> Most Popular
+                </div>
+              )}
+
+              <div>
+                <h3 className="font-display font-bold text-xl text-white mb-2">{plan.name}</h3>
+                <p className="text-gray-400 text-xs mb-6 min-h-[32px]">{plan.desc}</p>
+
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="font-display font-extrabold text-4xl text-white">{plan.price}</span>
+                  <span className="text-gray-500 text-xs">{plan.period}</span>
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  {plan.features.map((feat) => (
+                    <div key={feat} className="flex items-start gap-2.5 text-xs text-gray-300">
+                      <Check size={14} className="text-brand-orange mt-0.5 flex-shrink-0" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link
+                to={user ? "/dashboard" : "/register"}
+                className={`w-full py-3 text-sm font-semibold rounded-lg text-center transition-all ${
+                  plan.highlight
+                    ? 'btn-primary'
+                    : 'btn-secondary hover:border-brand-orange hover:text-brand-orange'
+                }`}
+              >
+                {plan.cta}
+              </Link>
             </div>
           ))}
         </div>
@@ -250,21 +560,33 @@ export default function LandingPage() {
               Ready to generate<br />your first strategy?
             </h2>
             <p className="text-gray-400 mb-8">Join traders using AI to build smarter algorithms</p>
-            <Link to="/register" className="btn-primary text-base px-10 py-4">
+            <Link to={user ? "/dashboard" : "/register"} className="btn-primary text-base px-10 py-4 inline-flex items-center gap-2">
               Create Free Account
-              <ArrowRight size={16} className="inline ml-2" />
+              <ArrowRight size={16} />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-brand-border px-8 py-8 text-center text-gray-600 text-sm">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <TrendingUp size={14} className="text-brand-orange" />
-          <span className="font-display font-semibold text-gray-400">TradeGenesis</span>
+      <footer className="relative z-10 border-t border-brand-border px-8 py-10 text-center text-gray-600 text-sm">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <TrendingUp size={16} className="text-brand-orange" />
+          <span className="font-display font-semibold text-gray-300 text-base">TradeGenesis</span>
         </div>
-        <p>© 2024 TradeGenesis. For educational purposes only. Not financial advice.</p>
+        <div className="flex justify-center gap-6 text-xs text-gray-500 mb-4">
+          {navLinks.map(({ name, id }) => (
+            <a
+              key={name}
+              href={`#${id}`}
+              onClick={(e) => scrollToSection(e, id)}
+              className="hover:text-gray-300 transition-colors cursor-pointer"
+            >
+              {name}
+            </a>
+          ))}
+        </div>
+        <p className="text-xs text-gray-600">© 2024 TradeGenesis. For educational purposes only. Not financial advice.</p>
       </footer>
     </div>
   );

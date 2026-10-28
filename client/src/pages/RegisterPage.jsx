@@ -25,8 +25,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form.name, form.email, form.password);
-      toast.success('Account created! Welcome to TradeGenesis 🚀');
-      navigate('/dashboard');
+      toast.success('Account created successfully! Please sign in to continue.');
+      navigate('/login', { state: { email: form.email, registered: true } });
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed');
     } finally {

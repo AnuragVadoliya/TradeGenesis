@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { TrendingUp, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { TrendingUp, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || '');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const justRegistered = Boolean(location.state?.registered);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,8 +69,19 @@ export default function LoginPage() {
             <span className="font-display font-bold text-white text-xl">Trade<span className="text-brand-orange">Genesis</span></span>
           </div>
 
-          <h2 className="font-display font-bold text-3xl text-white mb-1">Welcome back</h2>
-          <p className="text-gray-500 text-sm mb-8">Sign in to your trading account</p>
+          <h2 className="font-display font-bold text-3xl text-white mb-1">
+            {justRegistered ? 'Account Created!' : 'Welcome back'}
+          </h2>
+          <p className="text-gray-500 text-sm mb-6">
+            {justRegistered ? 'Please sign in to access your dashboard' : 'Sign in to your trading account'}
+          </p>
+
+          {justRegistered && (
+            <div className="mb-6 p-3.5 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2.5 text-green-400 text-xs animate-slide-up">
+              <CheckCircle2 size={16} className="flex-shrink-0" />
+              <span>Registration successful! Please enter your password to sign in.</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

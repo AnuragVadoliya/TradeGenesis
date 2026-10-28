@@ -1,4 +1,4 @@
-# 🚀 TradeGenesis — AI-Powered Algorithmic Trading Platform
+`code`# 🚀 TradeGenesis — AI-Powered Algorithmic Trading Platform
 
 > Create, backtest, and paper-trade algorithmic strategies using natural language AI on NSE/BSE markets.
 
