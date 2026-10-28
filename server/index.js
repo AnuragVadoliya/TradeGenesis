@@ -16,6 +16,9 @@ console.log(process.env.GROQ_API_KEY
 
 const app = express();
 
+// Trust reverse proxies (Render, Cloudflare, Heroku) for rate-limiting
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
@@ -51,6 +54,30 @@ app.use('/api/portfolio', require('./routes/portfolio'));
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'TradeGenesis Server' }));
+
+// Standalone Backtest & Price endpoints (serves as built-in engine if PYTHON_ENGINE_URL targets self or Render fallback)
+const { executeBacktest } = require('./utils/backtestEngine');
+
+app.post('/backtest', (req, res) => {
+  try {
+    const { strategy_code, symbol, start_date, end_date, initial_capital } = req.body;
+    const results = executeBacktest(strategy_code, symbol, start_date, end_date, initial_capital);
+    res.json(results);
+  } catch (err) {
+    res.status(400).json({ detail: err.message });
+  }
+});
+
+app.get('/price/:symbol', (req, res) => {
+  const symbol = req.params.symbol;
+  const mockPrices = {
+    'RELIANCE': 2980.50, 'TCS': 3840.20, 'INFY': 1540.60, 'HDFCBANK': 1690.40,
+    'ICICIBANK': 1110.80, 'SBIN': 815.30, 'TATAMOTORS': 960.50, 'BAJFINANCE': 7120.00
+  };
+  const clean = symbol.toUpperCase().replace(/\.(NS|BO)$/, '');
+  const price = mockPrices[clean] || 1250.00;
+  res.json({ symbol, price });
+});
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));

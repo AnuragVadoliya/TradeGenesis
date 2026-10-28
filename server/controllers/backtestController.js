@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Backtest = require('../models/Backtest');
 const Strategy = require('../models/Strategy');
+const { executeBacktest } = require('../utils/backtestEngine');
 
 const runBacktest = async (req, res) => {
   try {
@@ -26,46 +27,67 @@ const runBacktest = async (req, res) => {
       status: 'running'
     });
 
-    // Call Python engine
-    const pythonUrl = process.env.PYTHON_ENGINE_URL || 'http://localhost:8000';
+    let results = null;
+    const rawPythonUrl = (process.env.PYTHON_ENGINE_URL || 'http://localhost:8000').trim().replace(/\/+$/, '');
+    
+    // Check if pythonUrl mistakenly points to the Node API server itself
+    const isSelfHost = rawPythonUrl.includes('tradegenesis-api') || 
+      (process.env.RENDER_EXTERNAL_URL && rawPythonUrl === process.env.RENDER_EXTERNAL_URL.trim().replace(/\/+$/, ''));
 
-    try {
-      const pythonResponse = await axios.post(`${pythonUrl}/backtest`, {
-        strategy_code: strategy.code,
-        symbol: symbol.toUpperCase(),
-        start_date: startDate || null,
-        end_date: endDate || null,
-        initial_capital: initialCapital || 100000
-      }, { timeout: 120000 });
+    // Try external Python engine if configured and not self-pointing
+    if (!isSelfHost) {
+      try {
+        const pythonResponse = await axios.post(`${rawPythonUrl}/backtest`, {
+          strategy_code: strategy.code,
+          symbol: symbol.toUpperCase(),
+          start_date: startDate || null,
+          end_date: endDate || null,
+          initial_capital: initialCapital || 100000
+        }, { timeout: 120000 });
 
-      const results = pythonResponse.data;
-
-      // Update backtest with results
-      await Backtest.findByIdAndUpdate(backtest._id, {
-        results,
-        status: 'completed'
-      });
-
-      // Update strategy with latest backtest
-      await Strategy.findByIdAndUpdate(strategyId, { backtestResults: backtest._id });
-
-      res.json({
-        success: true,
-        backtestId: backtest._id,
-        results
-      });
-
-    } catch (pythonErr) {
-      await Backtest.findByIdAndUpdate(backtest._id, {
-        status: 'failed',
-        errorMessage: pythonErr.response?.data?.detail || pythonErr.message
-      });
-
-      res.status(500).json({
-        error: 'Backtest execution failed',
-        details: pythonErr.response?.data?.detail || pythonErr.message
-      });
+        results = pythonResponse.data;
+      } catch (pythonErr) {
+        console.warn(`[Backtest] External Python engine (${rawPythonUrl}) error: ${pythonErr.message}. Executing with built-in engine.`);
+      }
     }
+
+    // Fallback: If external engine didn't return, run built-in high-performance backtest engine
+    if (!results) {
+      try {
+        results = executeBacktest(
+          strategy.code,
+          symbol.toUpperCase(),
+          startDate,
+          endDate,
+          initialCapital || 100000
+        );
+      } catch (fallbackErr) {
+        console.error('[Backtest] Backtest calculation error:', fallbackErr);
+        await Backtest.findByIdAndUpdate(backtest._id, {
+          status: 'failed',
+          errorMessage: fallbackErr.message
+        });
+        return res.status(500).json({
+          error: 'Backtest execution failed',
+          details: fallbackErr.message
+        });
+      }
+    }
+
+    // Update backtest with results
+    await Backtest.findByIdAndUpdate(backtest._id, {
+      results,
+      status: 'completed'
+    });
+
+    // Update strategy with latest backtest
+    await Strategy.findByIdAndUpdate(strategyId, { backtestResults: backtest._id });
+
+    return res.json({
+      success: true,
+      backtestId: backtest._id,
+      results
+    });
 
   } catch (err) {
     console.error('Backtest error:', err);
